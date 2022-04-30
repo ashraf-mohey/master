@@ -28307,6 +28307,8 @@ paths:
       tags:
         - Query
 definitions:
+  ashrafmohey.master.organization.MsgSendIbcOrganizationResponse:
+    type: object
   ashrafmohey.master.organization.Params:
     type: object
     description: Params defines the parameters for the module.
