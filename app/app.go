@@ -96,6 +96,9 @@ import (
 	monitoringptypes "github.com/tendermint/spn/x/monitoringp/types"
 
 	"github.com/ashraf-mohey/master/docs"
+	ehrmodule "github.com/ashraf-mohey/master/x/ehr"
+	ehrmodulekeeper "github.com/ashraf-mohey/master/x/ehr/keeper"
+	ehrmoduletypes "github.com/ashraf-mohey/master/x/ehr/types"
 	organizationmodule "github.com/ashraf-mohey/master/x/organization"
 	organizationmodulekeeper "github.com/ashraf-mohey/master/x/organization/keeper"
 	organizationmoduletypes "github.com/ashraf-mohey/master/x/organization/types"
@@ -153,18 +156,21 @@ var (
 		vesting.AppModuleBasic{},
 		monitoringp.AppModuleBasic{},
 		organizationmodule.AppModuleBasic{},
+		ehrmodule.AppModuleBasic{},
 		// this line is used by starport scaffolding # stargate/app/moduleBasic
 	)
 
 	// module account permissions
 	maccPerms = map[string][]string{
-		authtypes.FeeCollectorName:     nil,
-		distrtypes.ModuleName:          nil,
-		minttypes.ModuleName:           {authtypes.Minter},
-		stakingtypes.BondedPoolName:    {authtypes.Burner, authtypes.Staking},
-		stakingtypes.NotBondedPoolName: {authtypes.Burner, authtypes.Staking},
-		govtypes.ModuleName:            {authtypes.Burner},
-		ibctransfertypes.ModuleName:    {authtypes.Minter, authtypes.Burner},
+		authtypes.FeeCollectorName:         nil,
+		distrtypes.ModuleName:              nil,
+		minttypes.ModuleName:               {authtypes.Minter},
+		stakingtypes.BondedPoolName:        {authtypes.Burner, authtypes.Staking},
+		stakingtypes.NotBondedPoolName:     {authtypes.Burner, authtypes.Staking},
+		govtypes.ModuleName:                {authtypes.Burner},
+		ibctransfertypes.ModuleName:        {authtypes.Minter, authtypes.Burner},
+		organizationmoduletypes.ModuleName: {authtypes.Minter, authtypes.Burner, authtypes.Staking},
+		ehrmoduletypes.ModuleName:          {authtypes.Minter, authtypes.Burner, authtypes.Staking},
 		// this line is used by starport scaffolding # stargate/app/maccPerms
 	}
 )
@@ -226,6 +232,8 @@ type App struct {
 
 	ScopedOrganizationKeeper capabilitykeeper.ScopedKeeper
 	OrganizationKeeper       organizationmodulekeeper.Keeper
+	ScopedEhrKeeper          capabilitykeeper.ScopedKeeper
+	EhrKeeper                ehrmodulekeeper.Keeper
 	// this line is used by starport scaffolding # stargate/app/keeperDeclaration
 
 	// mm is the module manager
@@ -263,6 +271,7 @@ func New(
 		govtypes.StoreKey, paramstypes.StoreKey, ibchost.StoreKey, upgradetypes.StoreKey, feegrant.StoreKey,
 		evidencetypes.StoreKey, ibctransfertypes.StoreKey, capabilitytypes.StoreKey, monitoringptypes.StoreKey,
 		organizationmoduletypes.StoreKey,
+		ehrmoduletypes.StoreKey,
 		// this line is used by starport scaffolding # stargate/app/storeKey
 	)
 	tkeys := sdk.NewTransientStoreKeys(paramstypes.TStoreKey)
@@ -386,8 +395,25 @@ func New(
 		app.IBCKeeper.ChannelKeeper,
 		&app.IBCKeeper.PortKeeper,
 		scopedOrganizationKeeper,
+		app.AccountKeeper,
+		app.BankKeeper,
 	)
 	organizationModule := organizationmodule.NewAppModule(appCodec, app.OrganizationKeeper, app.AccountKeeper, app.BankKeeper)
+
+	scopedEhrKeeper := app.CapabilityKeeper.ScopeToModule(ehrmoduletypes.ModuleName)
+	app.ScopedEhrKeeper = scopedEhrKeeper
+	app.EhrKeeper = *ehrmodulekeeper.NewKeeper(
+		appCodec,
+		keys[ehrmoduletypes.StoreKey],
+		keys[ehrmoduletypes.MemStoreKey],
+		app.GetSubspace(ehrmoduletypes.ModuleName),
+		app.IBCKeeper.ChannelKeeper,
+		&app.IBCKeeper.PortKeeper,
+		scopedEhrKeeper,
+		app.AccountKeeper,
+		app.BankKeeper,
+	)
+	ehrModule := ehrmodule.NewAppModule(appCodec, app.EhrKeeper, app.AccountKeeper, app.BankKeeper)
 
 	// this line is used by starport scaffolding # stargate/app/keeperDefinition
 
@@ -396,6 +422,7 @@ func New(
 	ibcRouter.AddRoute(ibctransfertypes.ModuleName, transferModule)
 	ibcRouter.AddRoute(monitoringptypes.ModuleName, monitoringModule)
 	ibcRouter.AddRoute(organizationmoduletypes.ModuleName, organizationModule)
+	ibcRouter.AddRoute(ehrmoduletypes.ModuleName, ehrModule)
 	// this line is used by starport scaffolding # ibc/app/router
 	app.IBCKeeper.SetRouter(ibcRouter)
 
@@ -431,6 +458,7 @@ func New(
 		transferModule,
 		monitoringModule,
 		organizationModule,
+		ehrModule,
 		// this line is used by starport scaffolding # stargate/app/appModule
 	)
 
@@ -458,6 +486,7 @@ func New(
 		paramstypes.ModuleName,
 		monitoringptypes.ModuleName,
 		organizationmoduletypes.ModuleName,
+		ehrmoduletypes.ModuleName,
 		// this line is used by starport scaffolding # stargate/app/beginBlockers
 	)
 
@@ -481,6 +510,7 @@ func New(
 		ibctransfertypes.ModuleName,
 		monitoringptypes.ModuleName,
 		organizationmoduletypes.ModuleName,
+		ehrmoduletypes.ModuleName,
 		// this line is used by starport scaffolding # stargate/app/endBlockers
 	)
 
@@ -509,6 +539,7 @@ func New(
 		feegrant.ModuleName,
 		monitoringptypes.ModuleName,
 		organizationmoduletypes.ModuleName,
+		ehrmoduletypes.ModuleName,
 		// this line is used by starport scaffolding # stargate/app/initGenesis
 	)
 
@@ -533,6 +564,7 @@ func New(
 		transferModule,
 		monitoringModule,
 		organizationModule,
+		ehrModule,
 		// this line is used by starport scaffolding # stargate/app/appModule
 	)
 	app.sm.RegisterStoreDecoders()
@@ -723,6 +755,7 @@ func initParamsKeeper(appCodec codec.BinaryCodec, legacyAmino *codec.LegacyAmino
 	paramsKeeper.Subspace(ibchost.ModuleName)
 	paramsKeeper.Subspace(monitoringptypes.ModuleName)
 	paramsKeeper.Subspace(organizationmoduletypes.ModuleName)
+	paramsKeeper.Subspace(ehrmoduletypes.ModuleName)
 	// this line is used by starport scaffolding # stargate/app/paramSubspace
 
 	return paramsKeeper

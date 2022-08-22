@@ -16,9 +16,11 @@ func (k msgServer) SendIbcOrganization(goCtx context.Context, msg *types.MsgSend
 	// Construct the packet
 	var packet types.IbcOrganizationPacketData
 
-	packet.Mnemonic = msg.Mnemonic
+	packet.Name = msg.Name
+	packet.OrganizationType = msg.OrganizationType
+	packet.Country = msg.Country
 	packet.Creator = msg.Creator
-	
+
 	// Transmit the packet
 	err := k.TransmitIbcOrganizationPacket(
 		ctx,

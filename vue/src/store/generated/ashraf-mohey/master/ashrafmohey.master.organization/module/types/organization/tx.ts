@@ -9,7 +9,9 @@ export interface MsgSendIbcOrganization {
   port: string;
   channelID: string;
   timeoutTimestamp: number;
-  mnemonic: string;
+  name: string;
+  organizationType: string;
+  country: string;
 }
 
 export interface MsgSendIbcOrganizationResponse {}
@@ -19,7 +21,9 @@ const baseMsgSendIbcOrganization: object = {
   port: "",
   channelID: "",
   timeoutTimestamp: 0,
-  mnemonic: "",
+  name: "",
+  organizationType: "",
+  country: "",
 };
 
 export const MsgSendIbcOrganization = {
@@ -39,8 +43,14 @@ export const MsgSendIbcOrganization = {
     if (message.timeoutTimestamp !== 0) {
       writer.uint32(32).uint64(message.timeoutTimestamp);
     }
-    if (message.mnemonic !== "") {
-      writer.uint32(42).string(message.mnemonic);
+    if (message.name !== "") {
+      writer.uint32(42).string(message.name);
+    }
+    if (message.organizationType !== "") {
+      writer.uint32(50).string(message.organizationType);
+    }
+    if (message.country !== "") {
+      writer.uint32(58).string(message.country);
     }
     return writer;
   },
@@ -65,7 +75,13 @@ export const MsgSendIbcOrganization = {
           message.timeoutTimestamp = longToNumber(reader.uint64() as Long);
           break;
         case 5:
-          message.mnemonic = reader.string();
+          message.name = reader.string();
+          break;
+        case 6:
+          message.organizationType = reader.string();
+          break;
+        case 7:
+          message.country = reader.string();
           break;
         default:
           reader.skipType(tag & 7);
@@ -100,10 +116,23 @@ export const MsgSendIbcOrganization = {
     } else {
       message.timeoutTimestamp = 0;
     }
-    if (object.mnemonic !== undefined && object.mnemonic !== null) {
-      message.mnemonic = String(object.mnemonic);
+    if (object.name !== undefined && object.name !== null) {
+      message.name = String(object.name);
     } else {
-      message.mnemonic = "";
+      message.name = "";
+    }
+    if (
+      object.organizationType !== undefined &&
+      object.organizationType !== null
+    ) {
+      message.organizationType = String(object.organizationType);
+    } else {
+      message.organizationType = "";
+    }
+    if (object.country !== undefined && object.country !== null) {
+      message.country = String(object.country);
+    } else {
+      message.country = "";
     }
     return message;
   },
@@ -115,7 +144,10 @@ export const MsgSendIbcOrganization = {
     message.channelID !== undefined && (obj.channelID = message.channelID);
     message.timeoutTimestamp !== undefined &&
       (obj.timeoutTimestamp = message.timeoutTimestamp);
-    message.mnemonic !== undefined && (obj.mnemonic = message.mnemonic);
+    message.name !== undefined && (obj.name = message.name);
+    message.organizationType !== undefined &&
+      (obj.organizationType = message.organizationType);
+    message.country !== undefined && (obj.country = message.country);
     return obj;
   },
 
@@ -146,10 +178,23 @@ export const MsgSendIbcOrganization = {
     } else {
       message.timeoutTimestamp = 0;
     }
-    if (object.mnemonic !== undefined && object.mnemonic !== null) {
-      message.mnemonic = object.mnemonic;
+    if (object.name !== undefined && object.name !== null) {
+      message.name = object.name;
     } else {
-      message.mnemonic = "";
+      message.name = "";
+    }
+    if (
+      object.organizationType !== undefined &&
+      object.organizationType !== null
+    ) {
+      message.organizationType = object.organizationType;
+    } else {
+      message.organizationType = "";
+    }
+    if (object.country !== undefined && object.country !== null) {
+      message.country = object.country;
+    } else {
+      message.country = "";
     }
     return message;
   },

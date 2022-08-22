@@ -1,33 +1,36 @@
 accounts:
   - name: eg-authority
-    coins: ["20000aut", "200000000stake"]
+    coins: ["200000000fhc", "200000000stake"]
   - name: uk-authority
-    coins: ["20000aut", "200000000stake"]
+    coins: ["200000000fhc", "200000000stake"]
   - name: sa-authority
-    coins: ["20000aut", "200000000stake"]
+    coins: ["200000000fhc", "200000000stake"]
   - name: au-authority
-    coins: ["20000aut", "200000000stake"]
+    coins: ["200000000fhc", "200000000stake"]
   - name: ca-authority
-    coins: ["20000aut", "200000000stake"]
+    coins: ["200000000fhc", "200000000stake"]
   - name: fr-authority
-    coins: ["20000aut", "200000000stake"]
+    coins: ["200000000fhc", "200000000stake"]
   - name: ge-authority
-    coins: ["20000aut", "200000000stake"]
+    coins: ["200000000fhc", "200000000stake"]
   - name: ru-authority
-    coins: ["20000aut", "200000000stake"]
+    coins: ["200000000fhc", "200000000stake"]
   - name: bf-authority
-    coins: ["20000aut", "200000000stake"]
+    coins: ["200000000fhc", "200000000stake"]
   - name: br-authority
-    coins: ["20000aut", "200000000stake"]
+    coins: ["200000000fhc", "200000000stake"]
     
 validator:
   name: "eg-authority"
   staked: "10000000stake"
+
+genesis:
+  chain_id: "master"
   
 faucet:
   host: ":4501"
   name: eg-authority
-  coins: ["5aut", "100000stake"]
+  coins: ["1000fhc", "100000stake"]
   
 client:
   openapi:

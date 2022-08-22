@@ -1,0 +1,24 @@
+syntax = "proto3";
+package ashrafmohey.master.ehr;
+
+// this line is used by starport scaffolding # proto/tx/import
+
+option go_package = "github.com/ashraf-mohey/master/x/ehr/types";
+
+// Msg defines the Msg service.
+service Msg {
+      rpc SendIbcTransferEhrs(MsgSendIbcTransferEhrs) returns (MsgSendIbcTransferEhrsResponse);
+// this line is used by starport scaffolding # proto/tx/rpc
+}
+
+message MsgSendIbcTransferEhrs {
+  string creator = 1;
+  string port = 2;
+  string channelID = 3;
+  uint64 timeoutTimestamp = 4;
+  uint64 patientId = 5;
+}
+
+message MsgSendIbcTransferEhrsResponse {
+}
+// this line is used by starport scaffolding # proto/tx/message

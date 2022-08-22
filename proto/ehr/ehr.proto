@@ -1,0 +1,19 @@
+syntax = "proto3";
+package ashrafmohey.master.ehr;
+
+// this line is used by starport scaffolding # proto/tx/import
+
+option go_package = "github.com/ashraf-mohey/master/x/ehr/types";
+
+message Ehr {
+  string creator = 1;
+  uint64 id = 2;
+  uint64 patientId = 3;
+  string dataHash = 4;
+  string patientSignature = 5;
+  string organizationSignature = 6;
+}
+
+
+
+

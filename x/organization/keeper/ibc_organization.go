@@ -9,8 +9,11 @@ import (
 	clienttypes "github.com/cosmos/ibc-go/v2/modules/core/02-client/types"
 	channeltypes "github.com/cosmos/ibc-go/v2/modules/core/04-channel/types"
 	host "github.com/cosmos/ibc-go/v2/modules/core/24-host"
-	
-	"os"
+
+	hd "github.com/cosmos/cosmos-sdk/crypto/hd"
+	"github.com/cosmos/cosmos-sdk/crypto/keyring"
+	minttypes "github.com/cosmos/cosmos-sdk/x/mint/types"
+	"strings"
 )
 
 // TransmitIbcOrganizationPacket transmits the packet over IBC with the specified source port and source channel
@@ -76,21 +79,38 @@ func (k Keeper) OnRecvIbcOrganizationPacket(ctx sdk.Context, packet channeltypes
 	}
 
 	// TODO: packet reception logic
-	privateKeysDir := "./patients/private_keys/"
-	ensureDir(privateKeysDir)
-	
-	return packetAck, nil
-}
-
-func ensureDir(dirName string) error {
-
-	err := os.MkdirAll(dirName, os.ModePerm)
-
-	if err == nil || os.IsExist(err) {
-		return nil
-	} else {
-		return err
+	kr, err := keyring.New(sdk.KeyringServiceName(), keyring.BackendTest, "/home/mohey/.master", nil)
+	keyName := strings.Replace(strings.ToLower(data.Name), " ", "-", -1)
+	key, err := kr.Key(keyName)
+	_ = key
+	if err == nil {
+		return packetAck, errors.New("Organization already exists")
 	}
+
+	path := sdk.GetConfig().GetFullBIP44Path()
+	record, mnemonic, err := kr.NewMnemonic(keyName, keyring.English, path, keyring.DefaultBIP39Passphrase, hd.Secp256k1)
+	_ = mnemonic
+	address := record.GetAddress()
+	//publicKey := record.GetPubKey()
+
+	amount := sdk.Coins{sdk.NewInt64Coin("fhc", 10)}
+
+	if err := k.bankKeeper.MintCoins(ctx, minttypes.ModuleName, amount); err != nil {
+		return packetAck, nil
+	}
+
+	if err := k.bankKeeper.SendCoinsFromModuleToAccount(ctx, minttypes.ModuleName, address, amount); err != nil {
+		return packetAck, errors.New("Failed to fund organization account with coins")
+	}
+
+	//privateKey, err := kr.ExportPrivateKeyObject(keyName)
+	packetAck.AccountName = keyName
+	packetAck.Address = address.String()
+	//packetAck.PublicKey = publicKey.String()
+	//packetAck.PrivateKey = privateKey.String()
+	//packetAck.PrivateKey = mnemonic
+
+	return packetAck, nil
 }
 
 // OnAcknowledgementIbcOrganizationPacket responds to the the success or failure of a packet

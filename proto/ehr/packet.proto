@@ -1,0 +1,32 @@
+syntax = "proto3";
+package ashrafmohey.master.ehr;
+
+import "ehr/ehr.proto";
+// this line is used by starport scaffolding # proto/packet/import
+
+option go_package = "github.com/ashraf-mohey/master/x/ehr/types";
+
+message EhrPacketData {
+    oneof packet {
+        NoData noData = 1;
+        // this line is used by starport scaffolding # ibc/packet/proto/field
+				IbcTransferEhrsPacketData ibcTransferEhrsPacket = 2; // this line is used by starport scaffolding # ibc/packet/proto/field/number
+    }
+}
+
+message NoData {
+}
+
+// IbcTransferEhrsPacketData defines a struct for the packet payload
+message IbcTransferEhrsPacketData {
+  string creator = 1;
+  uint64 patientId = 2;
+  string organizationAddress = 3;
+  string pendingTransferUrl = 4;
+}
+
+// IbcTransferEhrsPacketAck defines a struct for the packet acknowledgment
+message IbcTransferEhrsPacketAck {
+  repeated uint64 ids = 1;
+}
+// this line is used by starport scaffolding # ibc/packet/proto/message

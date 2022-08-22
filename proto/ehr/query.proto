@@ -1,0 +1,48 @@
+syntax = "proto3";
+package ashrafmohey.master.ehr;
+
+import "gogoproto/gogo.proto";
+import "google/api/annotations.proto";
+import "cosmos/base/query/v1beta1/pagination.proto";
+import "ehr/params.proto";
+import "ehr/ehr.proto";
+// this line is used by starport scaffolding # 1
+
+option go_package = "github.com/ashraf-mohey/master/x/ehr/types";
+
+// Query defines the gRPC querier service.
+service Query {
+  // Parameters queries the parameters of the module.
+  rpc Params(QueryParamsRequest) returns (QueryParamsResponse) {
+    option (google.api.http).get = "/master/ehr/params";
+  }
+  // Queries a list of GetPatientEhrs items.
+	rpc GetPatientEhrs(QueryGetPatientEhrsRequest) returns (QueryGetPatientEhrsResponse) {
+		option (google.api.http).get = "/master/ehr/ehrs/{patientId}";
+	}
+
+// this line is used by starport scaffolding # 2
+}
+
+// QueryParamsRequest is request type for the Query/Params RPC method.
+message QueryParamsRequest {}
+
+// QueryParamsResponse is response type for the Query/Params RPC method.
+message QueryParamsResponse {
+  // params holds all the parameters of this module.
+  Params params = 1 [(gogoproto.nullable) = false];
+}
+
+message QueryGetPatientEhrsRequest {
+  uint64 patientId = 1;
+  cosmos.base.query.v1beta1.PageRequest pagination = 2;
+}
+
+message QueryGetPatientEhrsResponse {
+  // Returning a list of patient's ehrs
+  repeated Ehr ehrs = 1;
+  // Adding pagination to response
+  cosmos.base.query.v1beta1.PageResponse pagination = 2;
+}
+
+// this line is used by starport scaffolding # 3
